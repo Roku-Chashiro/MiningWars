@@ -12,6 +12,7 @@ module.exports = class Card{
     no;//カードナンバー
     name;//カードの名前(文字列型)
     effect;//カードの効果(処理)
+    cardImgDir;//カードの画像の場所を表示
 
     //コンストラクタ
     //引数(形式,レアリティ,ナンバー)
@@ -21,7 +22,8 @@ module.exports = class Card{
         this.no = no;
         this.effect = this.seach(this.type,this.rarity,this.no);
         this.name = this.effect.nameReturn();
-        console.log( 'Cardname : = %s', this.name );
+        this.cardImgDir = this.effect.dirReturn();
+        //console.log( 'Cardname : = %s', this.name );
     }
 
     //カードを探すための処理

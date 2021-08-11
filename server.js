@@ -21,10 +21,8 @@ game.start( io );//このタイミングでGameにSoket.ioを送っている
 // 公開フォルダの指定
 app.use( express.static( __dirname + '/public' ) );
 
-// サーバーの起動
-server.listen(
-    PORT_NO,	// ポート番号
-    () =>
-    {
+// サーバーの起動とログの表示
+server.listen(PORT_NO,function(data){
         console.log( 'Starting server on port %d', PORT_NO );
-    } );
+    } 
+);
