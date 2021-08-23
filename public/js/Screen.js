@@ -30,18 +30,18 @@ class Screen{
         this.socket = socket;
         //盤の要素をidで取得する
         this.boardAppearance = new Array(7);
-        for(var i=0;i < this.boardAppearance.length;i++){ //Y軸
+        for(let i=0;i < this.boardAppearance.length;i++){ //Y軸
             this.boardAppearance[i] = new Array(7);
-            for(var j=0;j < this.boardAppearance[i].length;j++){ //X軸 [Y,X]
+            for(let j=0;j < this.boardAppearance[i].length;j++){ //X軸 [Y,X]
                 this.boardAppearance[i][j] =  document.getElementById(String('board' + i + j));
             }
         }
         //カードを表示するボタン要素をidで取得する
         //カードは左3つが00,01,02,右3つが10,11,12
         this.cardAppearance = new Array(2);
-        for(var i=0;i < this.cardAppearance.length;i++){
+        for(let i=0;i < this.cardAppearance.length;i++){
             this.cardAppearance[i] = new Array(3);
-            for(var j=0;j <this.cardAppearance[i].length;j++){
+            for(let j=0;j <this.cardAppearance[i].length;j++){
                 this.cardAppearance[i][j] = document.getElementById(String('card' + i + j));
             }
         }
@@ -90,7 +90,7 @@ class Screen{
     //対戦が始まって1回呼び出される関数
     oneTime(){
         //まずplayerListの何処に、このクライアントのデータが入ってるか判別します
-        for(var i=0;i < this.playerList.length;i++){
+        for(let i=0;i < this.playerList.length;i++){
             if(this.playerList[i].playerId == this.socket.id){
                 this.myIndex = i;
             }
@@ -107,19 +107,19 @@ class Screen{
     //描画更新を行う場合に、一度経由するメソッド
     renderMain(){
         //一回盤の描画を初期化(「移動」で必要)
-        for(var i=0;i < this.boardAppearance.length;i++){        //Y軸
-            for(var j=0;j < this.boardAppearance[i].length;j++){ //X軸
+        for(let i=0;i < this.boardAppearance.length;i++){        //Y軸
+            for(let j=0;j < this.boardAppearance[i].length;j++){ //X軸
                 this.boardAppearance[i][j].setAttribute('src',this.imgeDir + 'cell' + this.jpg);
             }
         }
 
         //キャラクターとキャラクターの見えている範囲
         //生きているキャラクター体数分処理
-        for(var i=0;i < this.playerList[this.myIndex].live;i++){
+        for(let i=0;i < this.playerList[this.myIndex].live;i++){
             //キャラクター設置
             this.boardAppearance[this.playerList[this.myIndex].characterList[i].coordinate[0]][this.playerList[this.myIndex].characterList[i].coordinate[1]].setAttribute('src',this.imgeDir + this.chara + this.directionImg[this.playerList[this.myIndex].characterList[i].direction] + this.jpg);
             //視界を表示
-            for(var j=0;j < this.playerList[this.myIndex].characterList[i].view.length;j++){
+            for(let j=0;j < this.playerList[this.myIndex].characterList[i].view.length;j++){
                 //盤の外に出ていないかを確認、盤外で無ければ反映させる(-1や7になると番外)
                 //y:左の判定,y:右の判定,x:上の判定,x:下の判定
                 if(this.playerList[this.myIndex].characterList[i].coordinate[0] + this.playerList[this.myIndex].characterList[i].view[j][0] >= 0
@@ -161,7 +161,7 @@ class Screen{
         }
 
         //テキストの書き換え
-        var textString = '';
+        let textString = '';
         if(this.playerList[this.myIndex].myOrder) textString = "あなたの番です:";
         else textString = "相手の番です:";
 
@@ -177,8 +177,8 @@ class Screen{
         //自キャラの視界で敵がいる場合
         //視界を表示
         //キャラクター毎に処理
-        for(var i=0;i < this.playerList[this.myIndex].live;i++){
-            for(var j=0;j < this.playerList[this.myIndex].characterList[i].view.length;j++){
+        for(let i=0;i < this.playerList[this.myIndex].live;i++){
+            for(let j=0;j < this.playerList[this.myIndex].characterList[i].view.length;j++){
                 //キャラクターの視界でXとYが合致すれば、見えてる場所という事になる
                 if(this.playerList[this.myIndex].characterList[i].coordinate[0] + this.playerList[this.myIndex].characterList[i].view[j][0] == this.coordinate[0]
                 && this.playerList[this.myIndex].characterList[i].coordinate[1] + this.playerList[this.myIndex].characterList[i].view[j][1] == this.coordinate[1]
@@ -201,7 +201,7 @@ class Screen{
     //完成形は「キャラクター」の視界を表示するのにも使う処理
     renderMoveAndView(){
         //移動できる場マスの色を変える
-        for(var i=0;i < this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed.length;i++){
+        for(let i=0;i < this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed.length;i++){
             //盤の外に出ていないかを確認して、盤外で無ければ反映させる(-1や7になると番外)
             if(this.playerList[this.myIndex].characterList[this.characterHold].coordinate[0] + this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed[i][0] >= 0  //y:左の判定
             && this.playerList[this.myIndex].characterList[this.characterHold].coordinate[0] + this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed[i][0] <= 6  //y:右の判定
@@ -217,7 +217,7 @@ class Screen{
                     } else {
                         //敵が居ることが解っている処理の中
                         //見えているかを判定
-                        for(var j=0;j < this.playerList[this.myIndex].characterList[this.characterHold].view.length;j++){
+                        for(let j=0;j < this.playerList[this.myIndex].characterList[this.characterHold].view.length;j++){
                             if(this.playerList[this.myIndex].characterList[this.characterHold].coordinate[0] + this.playerList[this.myIndex].characterList[this.characterHold].view[j][0] == [this.playerList[this.myIndex].characterList[this.characterHold].coordinate[0] + this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed[i][0]]
                             && this.playerList[this.myIndex].characterList[this.characterHold].coordinate[1] + this.playerList[this.myIndex].characterList[this.characterHold].view[j][1] == [this.playerList[this.myIndex].characterList[this.characterHold].coordinate[1] + this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed[i][1]]){
                                 //見えている処理
@@ -233,7 +233,7 @@ class Screen{
     //「方向」を選択する為の描画
     renderDirection(){
         this.remainingDirection = [];
-        for(var i=0;i < 4;i++){
+        for(let i=0;i < 4;i++){
             if(i != this.cellBlock[this.coordinate[0]][this.coordinate[1]].ridOn.direction){
                 this.remainingDirection[i] = i;
             }
@@ -241,7 +241,7 @@ class Screen{
         //配列がズレるので、nullを消して整える
         this.remainingDirection = this.remainingDirection.filter(Number.isFinite);
         //画像の表示
-        for(var i=0;i < this.cardAppearance[1].length;i++){
+        for(let i=0;i < this.cardAppearance[1].length;i++){
             this.cardAppearance[1][i].setAttribute('src',this.imgeDir + this.directionImg[this.remainingDirection[i]] + this.jpg);
         }
     }
@@ -253,7 +253,7 @@ class Screen{
             if(this.actionHold == 1){
                 //「移動」でクリックした場合
                 //移動できる座標をクリックしたかを判定
-                for(var i=0;i < this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed.length;i++){
+                for(let i=0;i < this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed.length;i++){
                     if(this.playerList[this.myIndex].characterList[this.characterHold].coordinate[0] + this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed[i][0] == Y
                     &&this.playerList[this.myIndex].characterList[this.characterHold].coordinate[1] + this.playerList[this.myIndex].characterList[this.characterHold].moveSpeed[i][1] == X){
                         //移動できる座標を押している場合
@@ -283,7 +283,7 @@ class Screen{
             if(this.actionHold == 2 && where == 1){
                 //「方向」の処理
                 //ループはremainingDirection.lengthつまり3回
-                for(var i = 0;i < this.remainingDirection.length;i++){
+                for(let i = 0;i < this.remainingDirection.length;i++){
                     if(btnNo == i){
                         //自分の,選択したキャラクターの,方向に = 描画の際格納した配列の中身を使って方向を代入する
                         this.playerList[this.myIndex].characterList[this.characterHold].direction = this.remainingDirection[i];
@@ -320,7 +320,7 @@ class Screen{
         //閲覧権限はbool型により条件式は要らない
         if(this.cellBlock[this.coordinate[0]][this.coordinate[1]].viewAuthority[this.myIndex]){
             //見れる
-            for(var i=0;i < this.cardAppearance[1].length;i++){
+            for(let i=0;i < this.cardAppearance[1].length;i++){
                 //埋まってるカードを表示
                 //ちゃんと効果のあるカードを実装し、画像を用意できたら細かく作る
                 //カードに画像のディレクトリをもたせている
@@ -328,7 +328,7 @@ class Screen{
             }
         } else {
             //見れない
-            for(var i=0;i < this.cardAppearance[1].length;i++){
+            for(let i=0;i < this.cardAppearance[1].length;i++){
                 this.cardAppearance[1][i].setAttribute('src',this.imgeDir +'cell.jpg');
             }
         }
@@ -336,7 +336,7 @@ class Screen{
 
     //キャラクターの持つカードを見せる
     charaCardView(charaNo){
-        for(var i=0;i < this.cardAppearance[0].length;i++){
+        for(let i=0;i < this.cardAppearance[0].length;i++){
             if(this.playerList[this.myIndex].characterList[charaNo].pocket[i] != null){
                 this.cardAppearance[0][i].setAttribute('src',this.imgeDir + this.playerList[this.myIndex].characterList[charaNo].pocket[i].cardImgDir);
             } else {

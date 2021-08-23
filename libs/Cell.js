@@ -14,10 +14,10 @@ module.exports = class Cell{
     constructor(peopleNo){
         //閲覧権限を管理する
         this.viewAuthority = Array(peopleNo);
-        for(var i=0;i < this.peopleNo;i++) this.viewAuthority[i] = false;
+        for(let i=0;i < this.peopleNo;i++) this.viewAuthority[i] = false;
         this.cardNo = 3;
         //Math.floor(Math.random() * 最大値)　最小自動で0になる
-        for(var i=0;i < this.cardNo;i++) this.card[i] = new Card(Math.floor(Math.random() * 0),i,Math.floor(Math.random() * 0));
+        for(let i=0;i < this.cardNo;i++) this.card[i] = new Card(Math.floor(Math.random() * 0),i,Math.floor(Math.random() * 0));
         this.ridOn = null;
     }
 
