@@ -76,8 +76,8 @@ module.exports = class Board{
     //盤からキャラクターの情報を抽出してplayerListに反映させる
     boardToPlayer(cellBlock){
         this.cellBlock = cellBlock;
-        for(var i=0;i < this.cellBlock.length;i++){
-            for(var j=0;j < this.cellBlock[i].length;j++){
+        for(let i=0;i < this.cellBlock.length;i++){
+            for(let j=0;j < this.cellBlock[i].length;j++){
                 //[X][Y]に何か乗っている場合
                 if(this.cellBlock[i][j].ridOn != null){
                     for(let k=0;k < this.playerList.length;k++){
@@ -95,19 +95,19 @@ module.exports = class Board{
     //プレイヤーリストを基に盤に反映させる
     playerToBoard(players){
         //盤に乗っている状態"だけ"を一度リセット
-        for(var i=0;i < this.cellBlock.length;i++){
-            for(var j=0;j < this.cellBlock[i].length;j++){
+        for(let i=0;i < this.cellBlock.length;i++){
+            for(let j=0;j < this.cellBlock[i].length;j++){
                 if(this.cellBlock[i][j].ridOn != null){
                     this.cellBlock[i][j].ridOn = null;
                 }
             }
         }
         //各プレイヤーのキャラクターを再配置
-        for(var i=0;i < players.length;i++){
+        for(let i=0;i < players.length;i++){
             //各プレイヤーの変更点を処理する(関数を使えるようにするため)
             this.playerList[i] = new Player(this.playerList[i]);
             //盤に再度並べる処理
-            for(var j=0;j < players[i].turn;j++){
+            for(let j=0;j < players[i].turn;j++){
                 this.cellBlock[players[i].characterList[j].coordinate[0]][players[i].characterList[j].coordinate[1]].ridOn = players[i].characterList[j];
             }
         }
