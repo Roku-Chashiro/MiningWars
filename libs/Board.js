@@ -11,83 +11,80 @@ const Player = require('./Player.js');
 module.exports = class Board{
     //フィールドの準備(スコープ等細かい調節は後から行う)
     //キャメル記法を参考に命名する
-    playersId;
+    playersId = [];
     cellBlock;
     playerList;
-    io;
+    //Socket.ioの関係上、メソッドの情報が消えるためメソッドを保持するクラスが要る
+    roomNo;
 
     //コンストラクタ
-    //ボードが作られるタイミングでいSoket.ioを引続
-    constructor( io ){  //Game.jsから受け取ったSoket.io
-        this.io = io;   // socketIOを自分のクラスで使えるようにする処理
+    constructor(playerOne,playertwo,roomNo){
+        this.playersId[0] = playerOne;
+        this.playersId[1] = playertwo;
+        this.roomNo = roomNo;
     }
 
-    //Gameクラスから送られるプレイヤーidの取得
-    //誰と誰が戦うのかがわかる
-    setPlayersId(playersId){
-        this.playersId = playersId;
+    //Gameクラス側で部屋番号の変更が有る
+    roomchange(roomNo){
+        this.roomNo = roomNo;
     }
 
-    //盤のマス(Cell)をセットする関数
+    //盤のマス(Cell)をセットするメソッド
     cellSeting(){
-        var edge = 7;//マスの1辺の量
-        this.cellBlock = new Array(edge); //Y列生成
-        for(var i=0;i < this.cellBlock.length;i++){
-            this.cellBlock[i] = new Array(edge);    //X列生成
-            for(var j=0;j < this.cellBlock[i].length;j++){
+        //盤の1辺のマス目の量
+        let edge = 7;
+        //Y列生成
+        this.cellBlock = new Array(edge);
+        for(let i=0;i < this.cellBlock.length;i++){
+            //X行生成
+            this.cellBlock[i] = new Array(edge);
+            for(let j=0;j < this.cellBlock[i].length;j++){
                 //[Y][X]で生成
                 this.cellBlock[i][j] = new Cell(this.playersId.length);
             }
         }
+        return this.cellBlock;
     }
 
     //プレイヤーの作成
     //先行後攻を決める
     playersMake(){
-        var playerNo = new Array(this.playersId.length);
         this.playerList = new Array(this.playersId.length);//プレイヤーを人数分リスト化
         //初期化
-        for(var i = 0; i < playerNo.length ;i++) playerNo[i] = 0;//後攻
-        playerNo[Math.floor(Math.random()*((1+1)-0))/1] = 1;     //先行
+        //プレイヤーの行動の順番を決める処理
+        //IDを並び替えて、早い順に並び替える
+        let orderPlayerId = [];
+        let randomNo;
+        for(let i = 0; i < playerList.length ;i++){
+            randomNo = Math.floor(Math.random() * this.playersId.length);
+            orderPlayerId[i] = playerId[randomNo];
+            this.playersId.splice(randomNo,1)
+        }
+        this.playerId = orderPlayerId;
         //プレイヤーを生成して、リストに格納する
-        for(var i = 0; i < this.playerList.length ;i++){
-            this.playerList[i] = new Player(playerNo[i],this.playersId.length,this.playersId[i],i);
-            console.log("リスト確認",this.playerList[i]);
-            console.log("作った直後",this.playerList[i].dummy());
-            console.log("作った直後",this.playerList[i].dummy);
-            console.log("作った直後",this.playerList[i].dummy.name);
+        const getCharactersCoordinate = (i, j) => this.playerList[i].characterList[j];
+        for(let i = 0; i < this.playerList.length ;i++){
+            this.playerList[i] = new Player(i,this.playersId.length,this.playersId[i]);
             //プレイヤーの中でキャラが生成されるため、盤にキャラが乗っている判定を盤にする
-            for(var j=0;j < this.playerList[i].turn;j++){
-                this.cellBlock[this.playerList[i].characterList[j].coordinate[0]][this.playerList[i].characterList[j].coordinate[1]].setRidOn(this.playerList[i].characterList[j]);
+            for(let j=0;j < this.playerList[i].turn;j++){
+                this.cellBlock[getCharactersCoordinate.coordinate[0]][getCharactersCoordinate.coordinate[1]].setRidOn(this.playerList[i].characterList[j]);
             }
         }
-    }
-
-    //ゲームの用意をする
-   　GameMaster(){
-        this.cellSeting();
-        this.playersMake();
-        //ここまでで、生成した[マス][プレイヤー,キャラクター]のデータを送る
-        this.io.emit("cellBlock",this.cellBlock);
-        this.io.emit("playerList",this.playerList);
+        return this.playerList;
     }
 
     //盤からキャラクターの情報を抽出してplayerListに反映させる
     boardToPlayer(cellBlock){
         this.cellBlock = cellBlock;
-        //盤のY軸
         for(var i=0;i < this.cellBlock.length;i++){
-            //盤のX軸
             for(var j=0;j < this.cellBlock[i].length;j++){
                 //[X][Y]に何か乗っている場合
                 if(this.cellBlock[i][j].ridOn != null){
-                    //どのプレイヤーのキャラクターか判別(2人か4人プレイで変わるので、もう一個for文を使って汎用性を増やすべき)
-                    if(this.playerList[0].playerNo == this.cellBlock[i][j].ridOn.playerNo){
-                        this.playerList[0].characterList[this.cellBlock[i][j].ridOn.myNo] = this.cellBlock[i][j].ridOn;
-                        this.playerList[0].characterList[this.cellBlock[i][j].ridOn.myNo].coordinate = [i,j];
-                    } else {
-                        this.playerList[1].characterList[this.cellBlock[i][j].ridOn.myNo] = this.cellBlock[i][j].ridOn;
-                        this.playerList[1].characterList[this.cellBlock[i][j].ridOn.myNo].coordinate = [i,j];
+                    for(let k=0;k < this.playerList.length;k++){
+                        if(k == cellBlock[i][j].ridOn.playerNo) this.playerList[k].characterList[this.cellBlock[i][j].ridOn.myNo] = this.cellBlock[i][j].ridOn;
+                            //ちゃんと代入された状態で受信して欲しいから削除
+                            //this.playerList[k].characterList[this.cellBlock[i][j].ridOn.myNo].coordinate = [i,j];
+                        //}
                     }
                 }
             }
@@ -98,65 +95,32 @@ module.exports = class Board{
     //プレイヤーリストを基に盤に反映させる
     playerToBoard(players){
         //盤に乗っている状態"だけ"を一度リセット
-        //盤のY軸
         for(var i=0;i < this.cellBlock.length;i++){
-            //盤のX軸
             for(var j=0;j < this.cellBlock[i].length;j++){
                 if(this.cellBlock[i][j].ridOn != null){
                     this.cellBlock[i][j].ridOn = null;
                 }
             }
         }
-        //キャラクターを再配置
+        //各プレイヤーのキャラクターを再配置
         for(var i=0;i < players.length;i++){
+            //各プレイヤーの変更点を処理する(関数を使えるようにするため)
+            this.playerList[i] = new Player(this.playerList[i]);
+            //盤に再度並べる処理
             for(var j=0;j < players[i].turn;j++){
-                //視界の再配置
-                //一度(0:上)に戻す
-                var viewCopy = players[i].characterList[j].view;
-                if(this.playerList[i].characterList[j].direction == 1){
-                    //左から上
-                    for(var k=0;k < viewCopy.length;k++){
-                        players[i].characterList[j].view[k] = [viewCopy[k][1],viewCopy[k][0]];
-                    }
-                } else if(this.playerList[i].characterList[j].direction == 2){
-                    //右から上
-                    for(var k=0;k < viewCopy.length;k++){
-                        players[i].characterList[j].view[k] = [-(viewCopy[k][1]),viewCopy[k][0]];
-                    }
-                } else if(this.playerList[i].characterList[j].direction == 3){
-                    //下から上
-                    for(var k=0;k < viewCopy.length;k++){
-                        players[i].characterList[j].view[k] = [-(viewCopy[k][0]),viewCopy[k][1]];
-                    }
-                }
-                //再度代入
-                viewCopy = players[i].characterList[j].view;
-                //新しい方の方向と比較して視界変更
-                if(players[i].characterList[j].direction == 1){
-                    for(var k=0;k < players[i].characterList[j].view.length;k++){
-                        players[i].characterList[j].view[k] = [viewCopy[k][1],viewCopy[k][0]];
-                    }
-                } else if(players[i].characterList[j].direction == 2){
-                    for(var k=0;k < players[i].characterList[j].view.length;k++){
-                        players[i].characterList[j].view[k] = [viewCopy[k][1],-(viewCopy[k][0])];
-                    }
-                } else if(players[i].characterList[j].direction == 3){
-                    for(var k=0;k < players[i].characterList[j].view.length;k++){
-                        players[i].characterList[j].view[k] = [-(viewCopy[k][0]),viewCopy[k][1]];
-                    }
-                }
                 this.cellBlock[players[i].characterList[j].coordinate[0]][players[i].characterList[j].coordinate[1]].ridOn = players[i].characterList[j];
             }
         }
-        /*Socket.io後は関数を入れた変数は使えない
-        console.log("なんか色々後",this.playerList[i]);
-        console.log("なんか色々後",this.playerList[i].dummy(2,3));
-        console.log("なんか色々後",this.playerList[i].dummy);
-        console.log("なんか色々後",this.playerList[i].dummy.name);*/
-        //新旧データを比較する処理があるので、代入は最後
         this.playerList = players;
         return this.cellBlock;
     }
 
-
+    //盤外判定を行う関数を返すメソッド
+    OffBoardJuge(){
+        return function(coordinate,edge){
+            for(let i=0;i < coordinate.length;i++){
+                if(coordinate[i] < 0 && coordinate[i] > edge) return true;
+            }
+        }
+    }
 }
